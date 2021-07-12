@@ -29,7 +29,7 @@ public class Count {
         private static final IntWritable valueEmit = new IntWritable();
         
 	private static int count; // used for In-Mapping Combining
-		// CIAO
+		// Federicona puppa
         @Override
         public void setup(Context context) throws IOException, InterruptedException {
             count = 0;
