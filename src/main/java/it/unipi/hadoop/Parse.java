@@ -16,10 +16,20 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 public class Parse {
+    private final String INPUT;
+    private final String BASE_OUTPUT;
+    //private final int numReducers;
+    private final int PAGE_COUNT;
+
+    public Parse(String INPUT, String BASE_OUTPUT, int PAGE_COUNT) {
+        this.INPUT = INPUT;
+        this.BASE_OUTPUT = BASE_OUTPUT;
+        //this.numReducers = numReducers;
+        this.PAGE_COUNT = PAGE_COUNT;
+    }
 
     //takes as input a line of the input file and emit key-value pairs (title, out-link), for each out-link
     public static class ParseMapper extends Mapper<LongWritable, Text, Text, Text> {
@@ -61,8 +71,7 @@ public class Parse {
         @Override
         public void setup(Context context) throws IOException, InterruptedException {
             //from the configuration it is read the output from the map reduce job page count
-            //pageCount = context.getConfiguration().getInt("page.count", 0);
-            pageCount = 2428;
+            pageCount = context.getConfiguration().getInt("page.count", 0);
         }
 
         @Override
@@ -79,7 +88,7 @@ public class Parse {
         }
     }
 
-    public static void main(String[] args) throws Exception{
+    public boolean run() throws Exception{
         final Configuration conf = new Configuration();
         final Job job = new Job(conf, "parser");
         job.setJarByClass(Parse.class);
@@ -87,20 +96,16 @@ public class Parse {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
 
+        //set the pageCount on the configuration
+        job.getConfiguration().setInt("page.count", PAGE_COUNT);
+
         job.setMapperClass(ParseMapper.class);
         job.setReducerClass(ParseReducer.class);
 
-        //delete output directory if it exists already
-        FileSystem fs = FileSystem.get(new Configuration());
-        if (fs.exists(new Path(args[1]))){
-            fs.delete(new Path(args[1]), true);
-            System.out.println("Old output directory deleted");
-        }
+        FileInputFormat.addInputPath(job, new Path(INPUT));
+        FileOutputFormat.setOutputPath(job, new Path(BASE_OUTPUT));
 
-        FileInputFormat.addInputPath(job, new Path(args[0]));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
-
-        System.exit(job.waitForCompletion(true) ? 0 : 1);
+        return job.waitForCompletion(true);
     }
 
 }
