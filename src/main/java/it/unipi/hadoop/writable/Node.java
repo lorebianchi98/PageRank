@@ -10,14 +10,26 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Node implements Writable {
+    private String title = null;
     private double pageRank;
-    private List<String> adjacencyList;
+    private List<String> adjacencyList = null;
 
     public Node() {
         adjacencyList = new ArrayList<String>();
     }
 
     public Node(double pageRank, List<String> adjacencyList) {
+        this.pageRank = pageRank;
+        this.adjacencyList = adjacencyList;
+    }
+
+    public Node(String title, double pageRank) {
+        this.title = title;
+        this.pageRank = pageRank;
+    }
+
+    public Node(String title, double pageRank, List<String> adjacencyList) {
+        this.title = title;
         this.pageRank = pageRank;
         this.adjacencyList = adjacencyList;
     }
@@ -53,4 +65,11 @@ public class Node implements Writable {
         }
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
 }
