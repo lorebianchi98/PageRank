@@ -23,6 +23,7 @@ public class Parse {
     private final String BASE_OUTPUT;
     //private final int numReducers;
     private final int PAGE_COUNT;
+    private static final String PATH = "/parse";
 
     public Parse(String INPUT, String BASE_OUTPUT, int PAGE_COUNT) {
         this.INPUT = INPUT;
@@ -103,7 +104,7 @@ public class Parse {
         job.setReducerClass(ParseReducer.class);
 
         FileInputFormat.addInputPath(job, new Path(INPUT));
-        FileOutputFormat.setOutputPath(job, new Path(BASE_OUTPUT));
+        FileOutputFormat.setOutputPath(job, new Path(BASE_OUTPUT + PATH));
 
         return job.waitForCompletion(true);
     }

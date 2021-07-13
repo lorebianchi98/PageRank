@@ -16,13 +16,14 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 public class Count {
     private static final String PATH = "/count";
     private String input;
     private String output;
     
-    private Count(final String input, final String output){
+    public Count(final String input, final String output){
         this.input = input;
         this.output = output;
     }
@@ -85,7 +86,7 @@ public class Count {
         job.setOutputValueClass(IntWritable.class);
         // define I/O
         FileInputFormat.addInputPath(job, new Path(this.input));
-        FileOutputFormat.setOutputPath(job, new Path(this.output));
+        FileOutputFormat.setOutputPath(job, new Path(this.output + PATH));
         // define input/output format
         job.setInputFormatClass(TextInputFormat.class);
         job.setOutputFormatClass(TextOutputFormat.class);
@@ -95,7 +96,7 @@ public class Count {
     
     public int getTotalPages() throws Exception {
         // read result
-        final String file = baseOutput + PATH + "/part-r-00000";
+        final String file = output + PATH + "/part-r-00000";
         Configuration configuration = new Configuration();
         FileSystem fileSystem = FileSystem.get(configuration);
         Path hdfsReadPath = new Path(file);
@@ -107,12 +108,14 @@ public class Count {
         inputStream.close();
         fileSystem.close();
 
-        String[] tokens = line.trim().split(" ");
+        String[] tokens = line.trim().split("\t");
 
         int pageCount = Integer.parseInt(tokens[1]);
 
         return pageCount;
     }
 
+    public static void main(String[] args){
 
+    }
 }

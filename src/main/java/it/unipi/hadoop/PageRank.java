@@ -23,10 +23,12 @@ public class PageRank {
             fs.delete(new Path(BASE_OUTPUT), true);
             System.out.println("Old output directory deleted");
         }
+        //creating the base output directory
+        fs.mkdirs(new Path(BASE_OUTPUT));
 
         // Count Stage
         Count countStage = new Count(INPUT, BASE_OUTPUT);
-        if(countStage.run()) {
+        if(!countStage.run()) {
             throw new Exception("Count job failed");
         }
         int totalPages = countStage.getTotalPages();
@@ -34,7 +36,7 @@ public class PageRank {
 
         // Parse Stage
         Parse parseStage = new Parse(INPUT, BASE_OUTPUT, totalPages);
-        if(parseStage.run()) {
+        if(!parseStage.run()) {
             throw new Exception("Parse job failed");
         }
         System.out.println(">> Parse Stage completed");
