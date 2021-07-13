@@ -19,13 +19,8 @@ import java.io.InputStreamReader;
 
 public class Count {
     private static final String PATH = "/count";
-    private String input;
-    private String output;
     
-    private Count(final String input, final String output){
-        this.input = input;
-        this.output = output;
-    }
+    private Count(){}
 
     public static class CountMapper extends Mapper<LongWritable, Text,Text, IntWritable> {
         private static final Text key = new Text("Pages");
@@ -67,7 +62,7 @@ public class Count {
         }
     }
     
-    public boolean run() throws Exception {
+    public static void main(final String[] args) throws Exception {
         // set configurations
         final Configuration conf = new Configuration();
         // instantiate job
@@ -84,35 +79,13 @@ public class Count {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
         // define I/O
-        FileInputFormat.addInputPath(job, new Path(this.input));
-        FileOutputFormat.setOutputPath(job, new Path(this.output));
+        FileInputFormat.addInputPath(job, new Path(args[0]));
+        FileOutputFormat.setOutputPath(job, new Path(args[1]));
         // define input/output format
         job.setInputFormatClass(TextInputFormat.class);
         job.setOutputFormatClass(TextOutputFormat.class);
-        
-        return job.waitForCompletion(true);
+        //job.setOutputFormatClass(SequenceFileOutputFormat.class);
+        System.out.println(job.waitForCompletion(true));
     }
     
-    public int getTotalPages() throws Exception {
-        // read result
-        final String file = baseOutput + PATH + "/part-r-00000";
-        Configuration configuration = new Configuration();
-        FileSystem fileSystem = FileSystem.get(configuration);
-        Path hdfsReadPath = new Path(file);
-        FSDataInputStream inputStream = fileSystem.open(hdfsReadPath);
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-        String line = bufferedReader.readLine();
-
-        bufferedReader.close();
-        inputStream.close();
-        fileSystem.close();
-
-        String[] tokens = line.trim().split(" ");
-
-        int pageCount = Integer.parseInt(tokens[1]);
-
-        return pageCount;
-    }
-
-
 }
