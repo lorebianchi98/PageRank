@@ -3,7 +3,6 @@ package it.unipi.hadoop;
 import it.unipi.hadoop.util.PageParser;
 import it.unipi.hadoop.writable.Node;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -19,17 +18,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Parse {
-    private final String INPUT;
-    private final String BASE_OUTPUT;
+    private String input;
+    private String output;
     //private final int numReducers;
-    private final int PAGE_COUNT;
+    private int pageCount;
     private static final String PATH = "/parse";
 
-    public Parse(String INPUT, String BASE_OUTPUT, int PAGE_COUNT) {
-        this.INPUT = INPUT;
-        this.BASE_OUTPUT = BASE_OUTPUT;
+    public Parse(String input, String output, int pageCount) {
+        this.input = input;
+        this.output = output + PATH;
         //this.numReducers = numReducers;
-        this.PAGE_COUNT = PAGE_COUNT;
+        this.pageCount = pageCount;
+    }
+
+    public String getOutput() {
+        return output;
     }
 
     //takes as input a line of the input file and emit key-value pairs (title, out-link), for each out-link
@@ -41,7 +44,6 @@ public class Parse {
 
         private static String title;
         private static List<String> outLinks;
-        private Logger logger = Logger.getLogger(ParseMapper.class);
 
         @Override
         public void map(final LongWritable key, final Text value, final Context context) throws IOException, InterruptedException {
@@ -85,6 +87,7 @@ public class Parse {
             }
             valueOut.setAdjacencyList(adjacencyList);
             valueOut.setPageRank(1.0d/pageCount);
+            valueOut.setIsNode(true);
             context.write(key, valueOut);
         }
     }
@@ -98,13 +101,13 @@ public class Parse {
         job.setOutputValueClass(Text.class);
 
         //set the pageCount on the configuration
-        job.getConfiguration().setInt("page.count", PAGE_COUNT);
+        job.getConfiguration().setInt("page.count", pageCount);
 
         job.setMapperClass(ParseMapper.class);
         job.setReducerClass(ParseReducer.class);
 
-        FileInputFormat.addInputPath(job, new Path(INPUT));
-        FileOutputFormat.setOutputPath(job, new Path(BASE_OUTPUT + PATH));
+        FileInputFormat.addInputPath(job, new Path(input));
+        FileOutputFormat.setOutputPath(job, new Path(output));
 
         return job.waitForCompletion(true);
     }

@@ -16,6 +16,8 @@ public class PageRank {
         */
         final String INPUT = args[0];
         final String BASE_OUTPUT = args[1];
+        final int ITERATIONS = Integer.parseInt(args[2]);
+        final double ALPHA = Double.parseDouble(args[3]);
 
         //delete output directory if it exists already
         FileSystem fs = FileSystem.get(new Configuration());
@@ -40,6 +42,18 @@ public class PageRank {
             throw new Exception("Parse job failed");
         }
         System.out.println(">> Parse Stage completed");
+
+        // Rank Stage until convergence
+        String nextInput = parseStage.getOutput();
+        System.out.println("******************** INPUT NEL MAIN: " + nextInput);
+        Rank rankStage = new Rank(nextInput, BASE_OUTPUT, 0, totalPages, ALPHA);
+        for(int i = 0; i < ITERATIONS; i++) {
+            if(!rankStage.run())
+                throw new Exception("Rank " + i + "-th job failed");
+            System.out.println(">> Iteration " + i + " completed");
+            rankStage.iterate();
+        }
+        System.out.println(">> Rank Stage completed");
 
     }
 }
