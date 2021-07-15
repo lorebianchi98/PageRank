@@ -51,9 +51,17 @@ public class PageRank {
             if(!rankStage.run())
                 throw new Exception("Rank " + i + "-th job failed");
             System.out.println(">> Iteration " + i + " completed");
+            nextInput = rankStage.getOutput();
             rankStage.iterate();
         }
         System.out.println(">> Rank Stage completed");
+/*
+        Sort sortStage = new Sort(nextInput, BASE_OUTPUT);
+        if(sortStage.run())
+            throw new Exception("Sort job failed");
+        System.out.println(">> Sort Stage completed");
+
+ */
 
     }
 }

@@ -56,6 +56,7 @@ public class Parse {
                     for (String outLink : outLinks) {
                         valueOut.set(outLink);
                         context.write(keyOut, valueOut);
+                        context.write(valueOut, empty);
                     }
                 } else
                     context.write(keyOut, empty); //node without any out-links
@@ -65,7 +66,7 @@ public class Parse {
 
     //takes as input key-value pairs (title, out-link) and emit (title, node feature)
     public static class ParseReducer extends Reducer<Text, Text, Text, Node> {
-        private int pageCount;
+        private static int pageCount;
         private static final Node valueOut = new Node();
 
         private static List<String> adjacencyList;
@@ -85,6 +86,7 @@ public class Parse {
                 if(!value.equals(""))
                     adjacencyList.add(value);
             }
+            valueOut.setTitle(key.toString());
             valueOut.setAdjacencyList(adjacencyList);
             valueOut.setPageRank(1.0d/pageCount);
             valueOut.setIsNode(true);

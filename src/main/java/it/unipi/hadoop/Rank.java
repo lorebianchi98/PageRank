@@ -12,6 +12,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -65,7 +66,7 @@ public class Rank {
     public static class RankMapper extends Mapper<Text, Text, Text, Node> {
         private static final Text keyOut = new Text();
         private static final Node valueOut = new Node();
-        private static final List<String> empty = new LinkedList<>();
+        private static final List<String> empty = new ArrayList<>();
 
         private static List<String> outLinks;
         private static double mass;
@@ -83,18 +84,19 @@ public class Rank {
             mass = valueOut.getPageRank() / outLinks.size();
 
             valueOut.setAdjacencyList(empty);
-            valueOut.setIsNode(false);
+            valueOut.setIsNode(true);
             for(String outLink: outLinks) {
                 keyOut.set(outLink);
                 valueOut.setPageRank(mass);
+                valueOut.setTitle(outLink);
                 context.write(keyOut, valueOut); // (2)
             }
         }
     }
 
     public static class RankReducer extends Reducer<Text, Node, Text, Node> {
-        private double alpha;
-        private int pageCount;
+        private static double alpha;
+        private static int pageCount;
         private static final Node valueOut = new Node();
         private static final List<String> empty = new LinkedList<>();
 
@@ -103,8 +105,8 @@ public class Rank {
 
         @Override
         public void setup(Context context) throws IOException, InterruptedException {
-            this.alpha = context.getConfiguration().getDouble("alpha", 0);
-            this.pageCount = context.getConfiguration().getInt("page.count", 0);
+            alpha = context.getConfiguration().getDouble("alpha", 0);
+            pageCount = context.getConfiguration().getInt("page.count", 0);
         }
 
         // For each node associated to a page
@@ -124,6 +126,7 @@ public class Rank {
             }
             newPageRank = (this.alpha / ((double)this.pageCount)) + ((1 - this.alpha) * rank);
             valueOut.setPageRank(newPageRank);
+            valueOut.setTitle(key.toString());
             context.write(key, valueOut);
         }
     }

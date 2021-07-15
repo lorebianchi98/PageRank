@@ -1,23 +1,20 @@
 package it.unipi.hadoop.writable;
 
 import com.google.gson.Gson;
-import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 public class Node implements WritableComparable<Node> {
-    private String title = null;
+    private String title;
     private double pageRank;
-    private List<String> adjacencyList = null;
+    private List<String> adjacencyList;
     private boolean isNode;
     public Node() {
-        adjacencyList = new ArrayList<String>();
     }
 
     public Node(double pageRank, List<String> adjacencyList, boolean isNode) {
@@ -38,7 +35,6 @@ public class Node implements WritableComparable<Node> {
         this.adjacencyList = adjacencyList;
         this.isNode = isNode;
     }
-
 
     public void setFromJson(final String json) {
         Node node = new Gson().fromJson(json, Node.class);
@@ -110,7 +106,7 @@ public class Node implements WritableComparable<Node> {
     }
 
     public void setIsNode(boolean isNode) {
-        isNode = isNode;
+        this.isNode = isNode;
     }
 
     @Override
@@ -123,12 +119,13 @@ public class Node implements WritableComparable<Node> {
     }
 
     public static void main(String[] args){
-        Node n1 = new Node("diahane", 1.0d, null, true);
-        Node n2 = new Node("diahane", 0.1d, null, true);
-        Node n3 = new Node("cds", 2.0d, null, true);
-        Node n4 = new Node("daiahane", 1.0d, null, true);
+        String json = "{\"title\":\"07478\",\"pageRank\":4.1203131437989287E-4,\"adjacencyList\":[\"Bion 2\",\"Bion 2\"],\"isNode\":true}";
+        Node node = new Node();
+        node.setFromJson(json);
+        Node node1 = new Node();
+        node1.setFromNode(node);
 
-        System.out.println(n1.compareTo(n2));
+        System.out.println(node1);
     }
 
 }
