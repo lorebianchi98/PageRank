@@ -84,7 +84,7 @@ public class Rank {
             mass = valueOut.getPageRank() / outLinks.size();
 
             valueOut.setAdjacencyList(empty);
-            valueOut.setIsNode(true);
+            valueOut.setIsNode(false);
             for(String outLink: outLinks) {
                 keyOut.set(outLink);
                 valueOut.setPageRank(mass);

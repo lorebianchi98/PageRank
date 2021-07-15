@@ -55,13 +55,13 @@ public class PageRank {
             rankStage.iterate();
         }
         System.out.println(">> Rank Stage completed");
-/*
+
         Sort sortStage = new Sort(nextInput, BASE_OUTPUT);
-        if(sortStage.run())
+        if(!sortStage.run())
             throw new Exception("Sort job failed");
         System.out.println(">> Sort Stage completed");
 
- */
+
 
     }
 }

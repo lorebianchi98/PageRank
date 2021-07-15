@@ -74,6 +74,7 @@ public class Node implements WritableComparable<Node> {
 
     @Override
     public void write(DataOutput out) throws IOException {
+        out.writeUTF(title);
         out.writeDouble(pageRank);
 
         //the size is written in order to know how many nodes need to be read
@@ -81,11 +82,12 @@ public class Node implements WritableComparable<Node> {
         for (String node: this.adjacencyList) {
             out.writeUTF(node);
         }
-
+        out.writeBoolean(isNode);
     }
 
     @Override
     public void readFields(DataInput in) throws IOException {
+        this.title = in.readUTF();
         this.pageRank = in.readDouble();
 
         int size = in.readInt();
@@ -93,6 +95,7 @@ public class Node implements WritableComparable<Node> {
         for (int i = 0; i < size; i++) {
             this.adjacencyList.add(in.readUTF());
         }
+        this.isNode = in.readBoolean();
     }
 
     @Override

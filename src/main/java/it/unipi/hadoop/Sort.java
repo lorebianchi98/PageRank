@@ -14,6 +14,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class Sort {
     private static final String OUTPUT_PATH = "/sort";
@@ -40,6 +41,7 @@ public class Sort {
             node.setFromJson(value.toString());
             keyOut.setTitle(node.getTitle());
             keyOut.setPageRank(node.getPageRank());
+            keyOut.setAdjacencyList(new ArrayList<String>());
             context.write(keyOut, valueOut);
         }
     }
