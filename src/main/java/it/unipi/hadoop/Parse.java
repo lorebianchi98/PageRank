@@ -11,7 +11,6 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,14 +19,12 @@ import java.util.List;
 public class Parse {
     private String input;
     private String output;
-    //private final int numReducers;
     private int pageCount;
     private static final String PATH = "/parse";
 
     public Parse(String input, String output, int pageCount) {
         this.input = input;
         this.output = output + PATH;
-        //this.numReducers = numReducers;
         this.pageCount = pageCount;
     }
 
@@ -88,13 +85,13 @@ public class Parse {
             }
             valueOut.setTitle(key.toString());
             valueOut.setAdjacencyList(adjacencyList);
-            valueOut.setPageRank(1.0d/pageCount);
+            valueOut.setPageRank(1.0d / pageCount);
             valueOut.setIsNode(true);
             context.write(key, valueOut);
         }
     }
 
-    public boolean run() throws Exception{
+    public boolean run(int numReducers) throws Exception{
         final Configuration conf = new Configuration();
         final Job job = new Job(conf, "parser");
         job.setJarByClass(Parse.class);
@@ -107,6 +104,9 @@ public class Parse {
 
         job.setMapperClass(ParseMapper.class);
         job.setReducerClass(ParseReducer.class);
+
+        // set number of reducer tasks to be used
+        job.setNumReduceTasks(numReducers);
 
         FileInputFormat.addInputPath(job, new Path(input));
         FileOutputFormat.setOutputPath(job, new Path(output));

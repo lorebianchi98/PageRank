@@ -32,7 +32,6 @@ public class Rank {
         this.output = baseOutput + OUTPUT_PATH + "_" + iteration;
         this.iteration = iteration;
         this.pageCount = pageCount;
-        //this.numReducers = numReducers;
         this.alpha = alpha;
     }
 
@@ -94,6 +93,31 @@ public class Rank {
         }
     }
 
+    public static class RankCombiner extends Reducer<Text, Node, Text, Node> {
+        private static final Node outValue = new Node();
+        private static final List<String> empty = new LinkedList<>();
+
+        private static double aggregatedRank;
+
+        // For each key pass the graph structure (1) and sum up the aggregate ranking (2)
+        @Override
+        public void reduce(Text key, Iterable<Node> values, Context context) throws IOException, InterruptedException {
+            aggregatedRank = 0.0;
+            outValue.setAdjacencyList(empty);
+            outValue.setIsNode(false);
+
+            for(Node p: values) {
+                if(p.isNode())
+                    context.write(key, p); // (1)
+                else
+                    aggregatedRank += p.getPageRank();
+            }
+            outValue.setTitle(key.toString());
+            outValue.setPageRank(aggregatedRank);
+            context.write(key, outValue); // (2)
+        }
+    }
+
     public static class RankReducer extends Reducer<Text, Node, Text, Node> {
         private static double alpha;
         private static int pageCount;
@@ -109,8 +133,8 @@ public class Rank {
             pageCount = context.getConfiguration().getInt("page.count", 0);
         }
 
-        // For each node associated to a page
-        // (1) if it is a complete node, recover the graph structure from it
+        // For each node object
+        // (1) if it is a node, recover the structure from it
         // (2) else, get from it an incoming rank contribution
         @Override
         public void reduce(Text key, Iterable<Node> values, Context context) throws IOException, InterruptedException {
@@ -124,14 +148,14 @@ public class Rank {
                 else
                     rank += node.getPageRank(); // (2)
             }
-            newPageRank = (this.alpha / ((double)this.pageCount)) + ((1 - this.alpha) * rank);
+            newPageRank = (alpha / ((double)pageCount)) + ((1 - alpha) * rank);
             valueOut.setPageRank(newPageRank);
             valueOut.setTitle(key.toString());
             context.write(key, valueOut);
         }
     }
 
-    public boolean run() throws Exception {
+    public boolean run(int numReducers) throws Exception {
         // set configurations
         final Configuration conf = new Configuration();
 
@@ -141,14 +165,12 @@ public class Rank {
 
         // set mapper/combiner/reducer
         job.setMapperClass(RankMapper.class);
+        //job.setCombinerClass(RankCombiner.class);
         job.setReducerClass(RankReducer.class);
 
         // set the random jump probability alpha and the page count
         job.getConfiguration().setDouble("alpha", alpha);
         job.getConfiguration().setInt("page.count", pageCount);
-
-        // set number of reducer tasks to be used
-        //job.setNumReduceTasks(numReducers);
 
         // define mapper's output key-value
         job.setMapOutputKeyClass(Text.class);
@@ -158,9 +180,10 @@ public class Rank {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Node.class);
 
+        // set the number of reducer tasks to be used
+        job.setNumReduceTasks(numReducers);
+
         // define I/O
-        System.out.println("******************** INPUT NEL RANK: " + input);
-        System.out.println("******************** OUTPUT NEL RANK: " + output);
         KeyValueTextInputFormat.addInputPath(job, new Path(input));
         FileOutputFormat.setOutputPath(job, new Path(output));
 

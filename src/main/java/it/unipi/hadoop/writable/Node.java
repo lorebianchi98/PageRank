@@ -12,7 +12,7 @@ import java.util.List;
 public class Node implements WritableComparable<Node> {
     private String title;
     private double pageRank;
-    private List<String> adjacencyList;
+    private List<String> adjacencyList = new ArrayList<>();
     private boolean isNode;
     public Node() {
     }
