@@ -165,7 +165,7 @@ public class Rank {
 
         // set mapper/combiner/reducer
         job.setMapperClass(RankMapper.class);
-        //job.setCombinerClass(RankCombiner.class);
+        job.setCombinerClass(RankCombiner.class);
         job.setReducerClass(RankReducer.class);
 
         // set the random jump probability alpha and the page count
