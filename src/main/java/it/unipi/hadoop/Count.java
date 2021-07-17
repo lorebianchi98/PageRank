@@ -69,25 +69,22 @@ public class Count {
     }
     
     public boolean run() throws Exception {
-        // set configurations
         final Configuration conf = new Configuration();
-        // instantiate job
         final Job job = new Job(conf, "Count");
         job.setJarByClass(Count.class);
-        // set mapper/combiner/reducer
+        
         job.setMapperClass(CountMapper.class);
-        job.setCombinerClass(CountReducer.class);
         job.setReducerClass(CountReducer.class);
-        // define mapper's output key-value
+        
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(IntWritable.class);
-        // define reducer's output key-value
+        
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
-        // define I/O
+        
         FileInputFormat.addInputPath(job, new Path(this.input));
         FileOutputFormat.setOutputPath(job, new Path(this.output + PATH));
-        // define input/output format
+        
         job.setInputFormatClass(TextInputFormat.class);
         job.setOutputFormatClass(TextOutputFormat.class);
         
