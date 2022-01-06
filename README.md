@@ -1,6 +1,7 @@
 # Page Rank
 
 This Project developed for the university course of "Cloud Computing" reproduce the PageRank algorithm, that was the first algorithm used in Google to rank web pages in their search engine results.
+The project reproduced PageRank using both Spark and Hadoop, two of the most used analytics engine for large-scale data processing
 
 
 
