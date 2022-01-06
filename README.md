@@ -1,5 +1,11 @@
 # Page Rank
 
+This Project developed for the university course of "Cloud Computing" reproduce the PageRank algorithm, that was the first algorithm used in Google to rank web pages in their search engine results.
+
+
+
+# How to execute
+
 Firstly be sure that 'wiki-micro.txt' is present in HDFS with:
 ```
 hadoop fs -ls
